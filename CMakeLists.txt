@@ -144,6 +144,13 @@ foreach(target_name IN LISTS UVC_TARGETS)
 endforeach()
 
 if(BUILD_EXAMPLE)
+  add_executable(dump-uvc src/dump-uvc.c)
+  find_package(Threads)
+  target_link_libraries(dump-uvc
+    PRIVATE
+      LibUVC::UVC
+      Threads::Threads
+  )
   add_executable(example src/example.c)
   find_package(Threads)
   target_link_libraries(example
