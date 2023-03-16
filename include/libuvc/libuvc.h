@@ -492,6 +492,11 @@ typedef struct uvc_frame {
  */
 typedef void(uvc_frame_callback_t)(struct uvc_frame *frame, void *user_ptr);
 
+/** A callback function to handle incoming uvc frame which includes uvc header
+ * @ingroup streaming
+ */
+typedef void(uvc_payload_callback_t)(uint8_t *payload, size_t payload_len);
+
 /** Streaming mode, includes all information needed to select stream
  * @ingroup streaming
  */
@@ -621,6 +626,7 @@ uvc_error_t uvc_start_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr,
     uint8_t flags);
 
@@ -628,6 +634,7 @@ uvc_error_t uvc_start_iso_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr);
 
 void uvc_stop_streaming(uvc_device_handle_t *devh);
@@ -636,10 +643,12 @@ uvc_error_t uvc_stream_open_ctrl(uvc_device_handle_t *devh, uvc_stream_handle_t 
 uvc_error_t uvc_stream_ctrl(uvc_stream_handle_t *strmh, uvc_stream_ctrl_t *ctrl);
 uvc_error_t uvc_stream_start(uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr,
     uint8_t flags);
 uvc_error_t uvc_stream_start_iso(uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr);
 uvc_error_t uvc_stream_get_frame(
     uvc_stream_handle_t *strmh,

@@ -256,6 +256,7 @@ struct uvc_stream_handle {
   pthread_t cb_thread;
   uint32_t last_polled_seq;
   uvc_frame_callback_t *user_cb;
+  uvc_payload_callback_t *payload_cb;
   void *user_ptr;
   struct libusb_transfer *transfers[LIBUVC_NUM_TRANSFER_BUFS];
   uint8_t *transfer_bufs[LIBUVC_NUM_TRANSFER_BUFS];

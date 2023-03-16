@@ -711,6 +711,9 @@ void _uvc_process_payload(uvc_stream_handle_t *strmh, uint8_t *payload, size_t p
   if (payload_len == 0)
     return;
 
+  /* uvc payload(including uvc header) callback */
+  if(strmh->payload_cb) strmh->payload_cb(payload,payload_len);
+
   /* Certain iSight cameras have strange behavior: They send header
    * information in a packet with no image data, and then the following
    * packets have only image data, with no more headers until the next frame.
@@ -932,6 +935,7 @@ uvc_error_t uvc_start_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr,
     uint8_t flags
 ) {
@@ -942,7 +946,7 @@ uvc_error_t uvc_start_streaming(
   if (ret != UVC_SUCCESS)
     return ret;
 
-  ret = uvc_stream_start(strmh, cb, user_ptr, flags);
+  ret = uvc_stream_start(strmh, cb, payload_cb, user_ptr, flags);
   if (ret != UVC_SUCCESS) {
     uvc_stream_close(strmh);
     return ret;
@@ -968,9 +972,10 @@ uvc_error_t uvc_start_iso_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr
 ) {
-  return uvc_start_streaming(devh, ctrl, cb, user_ptr, 0);
+  return uvc_start_streaming(devh, ctrl, cb, payload_cb, user_ptr, 0);
 }
 
 static uvc_stream_handle_t *_uvc_get_stream_by_interface(uvc_device_handle_t *devh, int interface_idx) {
@@ -1075,6 +1080,7 @@ fail:
 uvc_error_t uvc_stream_start(
     uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr,
     uint8_t flags
 ) {
@@ -1234,6 +1240,7 @@ uvc_error_t uvc_stream_start(
   }
 
   strmh->user_cb = cb;
+  strmh->payload_cb = payload_cb;
   strmh->user_ptr = user_ptr;
 
   /* If the user wants it, set up a thread that calls the user's function
@@ -1283,9 +1290,10 @@ fail:
 uvc_error_t uvc_stream_start_iso(
     uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
+    uvc_payload_callback_t *payload_cb,
     void *user_ptr
 ) {
-  return uvc_stream_start(strmh, cb, user_ptr, 0);
+  return uvc_stream_start(strmh, cb, payload_cb, user_ptr, 0);
 }
 
 /** @internal
