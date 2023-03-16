@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
         /* Start the video stream. The library will call user function cb:
          *   cb(frame, (void *) 12345)
          */
-        res = uvc_start_streaming(devh, &ctrl, cb, 0, (void *) 12345, 0);
+        res = uvc_start_streaming2(devh, &ctrl, cb, 0, (void *) 12345, 0);
 
         if (res < 0) {
           uvc_perror(res, "start_streaming"); /* unable to start stream */

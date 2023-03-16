@@ -935,6 +935,27 @@ uvc_error_t uvc_start_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    void *user_ptr,
+    uint8_t flags
+) {
+  return uvc_start_streaming2(devh, ctrl, cb, 0, user_ptr, flags);
+}
+
+/** Begin streaming video from the camera into the callback function.
+ * @ingroup streaming
+ *
+ * @param devh UVC device
+ * @param ctrl Control block, processed using {uvc_probe_stream_ctrl} or
+ *             {uvc_get_stream_ctrl_format_size}
+ * @param cb   User callback function. See {uvc_frame_callback_t} for restrictions.
+ * @param payload_cb   User callback function. To catch uvc payload with uvc header.
+ * @param flags Stream setup flags, currently undefined. Set this to zero. The lower bit
+ * is reserved for backward compatibility.
+ */
+uvc_error_t uvc_start_streaming2(
+    uvc_device_handle_t *devh,
+    uvc_stream_ctrl_t *ctrl,
+    uvc_frame_callback_t *cb,
     uvc_payload_callback_t *payload_cb,
     void *user_ptr,
     uint8_t flags
@@ -946,7 +967,7 @@ uvc_error_t uvc_start_streaming(
   if (ret != UVC_SUCCESS)
     return ret;
 
-  ret = uvc_stream_start(strmh, cb, payload_cb, user_ptr, flags);
+  ret = uvc_stream_start2(strmh, cb, payload_cb, user_ptr, flags);
   if (ret != UVC_SUCCESS) {
     uvc_stream_close(strmh);
     return ret;
@@ -972,10 +993,33 @@ uvc_error_t uvc_start_iso_streaming(
     uvc_device_handle_t *devh,
     uvc_stream_ctrl_t *ctrl,
     uvc_frame_callback_t *cb,
+    void *user_ptr
+) {
+  return uvc_start_iso_streaming2(devh, ctrl, cb, 0, user_ptr);
+}
+
+/** Begin streaming video from the camera into the callback function.
+ * @ingroup streaming
+ *
+ * @deprecated The stream type (bulk vs. isochronous) will be determined by the
+ * type of interface associated with the uvc_stream_ctrl_t parameter, regardless
+ * of whether the caller requests isochronous streaming. Please switch to
+ * uvc_start_streaming().
+ *
+ * @param devh UVC device
+ * @param ctrl Control block, processed using {uvc_probe_stream_ctrl} or
+ *             {uvc_get_stream_ctrl_format_size}
+ * @param cb   User callback function. See {uvc_frame_callback_t} for restrictions.
+ * @param payload_cb   User callback function. To catch uvc payload with uvc header.
+ */
+uvc_error_t uvc_start_iso_streaming2(
+    uvc_device_handle_t *devh,
+    uvc_stream_ctrl_t *ctrl,
+    uvc_frame_callback_t *cb,
     uvc_payload_callback_t *payload_cb,
     void *user_ptr
 ) {
-  return uvc_start_streaming(devh, ctrl, cb, payload_cb, user_ptr, 0);
+  return uvc_start_streaming2(devh, ctrl, cb, payload_cb, user_ptr, 0);
 }
 
 static uvc_stream_handle_t *_uvc_get_stream_by_interface(uvc_device_handle_t *devh, int interface_idx) {
@@ -1078,6 +1122,15 @@ fail:
  * is reserved for backward compatibility.
  */
 uvc_error_t uvc_stream_start(
+    uvc_stream_handle_t *strmh,
+    uvc_frame_callback_t *cb,
+    void *user_ptr,
+    uint8_t flags
+) {
+  return uvc_stream_start2(strmh, cb, 0, user_ptr, flags);
+}
+
+uvc_error_t uvc_stream_start2(
     uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
     uvc_payload_callback_t *payload_cb,
@@ -1290,10 +1343,30 @@ fail:
 uvc_error_t uvc_stream_start_iso(
     uvc_stream_handle_t *strmh,
     uvc_frame_callback_t *cb,
+    void *user_ptr
+) {
+  return uvc_stream_start(strmh, cb, user_ptr, 0);
+}
+
+/** Begin streaming video from the stream into the callback function.
+ * @ingroup streaming
+ *
+ * @deprecated The stream type (bulk vs. isochronous) will be determined by the
+ * type of interface associated with the uvc_stream_ctrl_t parameter, regardless
+ * of whether the caller requests isochronous streaming. Please switch to
+ * uvc_stream_start().
+ *
+ * @param strmh UVC stream
+ * @param cb   User callback function. See {uvc_frame_callback_t} for restrictions.
+ * @param payload_cb   User callback function. To catch uvc payload with uvc header.
+ */
+uvc_error_t uvc_stream_start_iso2(
+    uvc_stream_handle_t *strmh,
+    uvc_frame_callback_t *cb,
     uvc_payload_callback_t *payload_cb,
     void *user_ptr
 ) {
-  return uvc_stream_start(strmh, cb, payload_cb, user_ptr, 0);
+  return uvc_stream_start2(strmh, cb, payload_cb, user_ptr, 0);
 }
 
 /** @internal
